@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import BackgroundAnimation from '@/components/BackgroundAnimation'
@@ -28,6 +28,10 @@ export default function RussianHome() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedBot, setSelectedBot] = useState('Work Report Bot')
   const [customModalOpen, setCustomModalOpen] = useState(false)
+  
+  // Refs for scroll to button after modal close
+  const contactButtonRef = useRef(null)
+  const customBotButtonRef = useRef(null)
   
   const telegramLink = "https://t.me/alex_nomad_dev"
 
@@ -264,7 +268,10 @@ export default function RussianHome() {
       </section>
 
       {/* Custom Bot Development Section */}
-      <CustomBotSection onOpenForm={() => setCustomModalOpen(true)} />
+      <CustomBotSection 
+        onOpenForm={() => setCustomModalOpen(true)} 
+        buttonRef={customBotButtonRef}
+      />
 
       {/* Ready Solutions Section */}
       <section id="solutions" className="py-20 px-6">
@@ -345,7 +352,7 @@ export default function RussianHome() {
               Первая консультация бесплатно.
             </p>
             
-            <a href={telegramLink} target="_blank" rel="noopener noreferrer">
+            <a href={telegramLink} target="_blank" rel="noopener noreferrer" ref={contactButtonRef}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -375,12 +382,14 @@ export default function RussianHome() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialBotType={selectedBot}
+        scrollToButton={contactButtonRef}
       />
 
       {/* Custom Bot Form Modal */}
       <CustomBotForm
         isOpen={customModalOpen}
         onClose={() => setCustomModalOpen(false)}
+        scrollToButton={customBotButtonRef}
       />
     </main>
   )

@@ -6,7 +6,7 @@ import IntegrationIcon from '@/components/icons/IntegrationIcon'
 import DashboardIcon from '@/components/icons/DashboardIcon'
 import AutomationIcon from '@/components/icons/AutomationIcon'
 
-export default function CustomBotSection({ onOpenForm, language = 'ru' }) {
+export default function CustomBotSection({ onOpenForm, language = 'ru', buttonRef = null }) {
   const content = {
     ru: {
       title: 'CUSTOM BOT DEVELOPMENT',
@@ -211,6 +211,7 @@ export default function CustomBotSection({ onOpenForm, language = 'ru' }) {
           className="text-center"
         >
           <motion.button
+            ref={buttonRef}
             onClick={onOpenForm}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}

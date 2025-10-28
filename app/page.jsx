@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 
 export default function LanguageSelector() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] overflow-hidden">
+    <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] overflow-hidden z-[9999]">
       {/* Animated background glow - Purple */}
       <motion.div
         className="absolute w-[600px] h-[600px] rounded-full"

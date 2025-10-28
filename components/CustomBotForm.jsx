@@ -3,13 +3,53 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function CustomBotForm({ isOpen, onClose }) {
+export default function CustomBotForm({ isOpen, onClose, scrollToButton = null, language = 'ru' }) {
   const [formData, setFormData] = useState({
     name: '',
     contact: '',
     description: '',
     budget: ''
   })
+  
+  // Локализация
+  const texts = {
+    ru: {
+      premiumService: '[ PREMIUM SERVICE ]',
+      premiumDescription: 'Индивидуальная разработка Telegram-ботов под ваши задачи',
+      successTitle: '[ SUCCESS ] Заявка принята',
+      successMessage: 'Ваш запрос успешно отправлен. Я свяжусь с вами в ближайшее время.',
+      nameLabel: 'Ваше имя:',
+      namePlaceholder: 'Иван Иванов',
+      contactLabel: 'Контакт (Telegram или Email):',
+      contactPlaceholder: '@username или email@example.com',
+      descriptionLabel: 'Описание проекта:',
+      descriptionPlaceholder: 'Опишите функционал бота, задачи, особенности...',
+      budgetLabel: 'Ориентировочный бюджет:',
+      budgetPlaceholder: 'от 100 000 ₽',
+      submitButton: '[ ENTER TO SUBMIT ]',
+      submitting: '[ ОТПРАВКА... ]',
+      footerHint: 'ESC - закрыть • ENTER - отправить'
+    },
+    en: {
+      premiumService: '[ PREMIUM SERVICE ]',
+      premiumDescription: 'Custom Telegram bot development tailored to your needs',
+      successTitle: '[ SUCCESS ] Request received',
+      successMessage: 'Your request has been successfully submitted. I will contact you soon.',
+      nameLabel: 'Your name:',
+      namePlaceholder: 'John Doe',
+      contactLabel: 'Contact (Telegram or Email):',
+      contactPlaceholder: '@username or email@example.com',
+      descriptionLabel: 'Project description:',
+      descriptionPlaceholder: 'Describe bot features, tasks, requirements...',
+      budgetLabel: 'Estimated budget:',
+      budgetPlaceholder: 'from $2,000',
+      submitButton: '[ ENTER TO SUBMIT ]',
+      submitting: '[ SUBMITTING... ]',
+      footerHint: 'ESC - close • ENTER - submit'
+    }
+  }
+  
+  const t = texts[language]
   
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -23,6 +63,18 @@ export default function CustomBotForm({ isOpen, onClose }) {
     }, 530)
     return () => clearInterval(interval)
   }, [])
+
+  // Block scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [isOpen])
 
   // Reset form when closed
   useEffect(() => {
@@ -109,11 +161,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
         onClick={handleClose}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto"
-        style={{ 
-          background: 'rgba(10, 10, 15, 0.9)',
-          backdropFilter: 'blur(8px)'
-        }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0A0A0F]/90 backdrop-blur-sm"
       >
         {/* Glitch lines background */}
         <div 
@@ -124,24 +172,6 @@ export default function CustomBotForm({ isOpen, onClose }) {
           }}
         />
 
-        {/* Pulsating background glow */}
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, rgba(162, 70, 255, 0.2) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-          }}
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ 
@@ -149,58 +179,33 @@ export default function CustomBotForm({ isOpen, onClose }) {
             opacity: isClosing ? 0 : 1 
           }}
           exit={{ scale: 0.9, opacity: 0 }}
-          transition={{ type: 'spring', duration: 0.5 }}
+          transition={{ duration: 0.3 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-[560px] bg-[#0A0A0F] border-2 border-[#A246FF] rounded-xl overflow-hidden"
-          style={{ boxShadow: '0 0 60px rgba(162, 70, 255, 0.6)' }}
+          className="relative w-[90%] max-w-md rounded-2xl border border-[#A246FF50] bg-[#0A0A0F]/95 p-6 text-[#2DE8B5]"
         >
-          {/* Animated border glow */}
-          <motion.div
-            className="absolute inset-0 rounded-xl pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(162, 70, 255, 0.5), transparent)',
-            }}
-            animate={{
-              x: ['-100%', '200%'],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          />
-
           {/* Terminal Header */}
-          <div className="relative px-4 py-3 bg-[#120020] border-b-2 border-[#A246FF]/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-              </div>
-              
-              <motion.div
-                className="text-[#2DE8B5] text-sm font-mono flex items-center gap-2"
-                animate={{
-                  opacity: [1, 0.7, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                }}
-              >
-                <span className="text-[#A246FF]">&gt;</span> CUSTOM BOT REQUEST
-              </motion.div>
-              
-              <button
-                onClick={handleClose}
-                disabled={isSubmitting || isClosing}
-                className="text-gray-500 hover:text-[#2DE8B5] transition-colors disabled:opacity-50"
-                title="Press ESC to close"
-              >
-                ✕
-              </button>
+          <div className="rounded-t-2xl bg-[#0C0C0F] border-b border-[#2DE8B540] p-3 flex items-center justify-between">
+            {/* LEFT SIDE */}
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+              <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+              <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
             </div>
+
+            {/* CENTER SECTION */}
+            <div className="text-[#2DE8B5] font-mono text-[10px] whitespace-nowrap">
+              alex@nomad:~$ <span className="text-[#2DE8B5]">request_bot --interactive</span>
+            </div>
+
+            {/* RIGHT SIDE */}
+            <button
+              onClick={handleClose}
+              disabled={isSubmitting || isClosing}
+              className="text-gray-500 hover:text-gray-300 transition disabled:opacity-50"
+              title="Press ESC to close"
+            >
+              ✕
+            </button>
           </div>
 
           <div className="p-6 terminal-scrollbar max-h-[80vh]">
@@ -219,10 +224,10 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   ✓
                 </motion.div>
                 <div className="text-[#2DE8B5] text-lg font-mono mb-4">
-                  [ SUCCESS ] Заявка принята
+                  {t.successTitle}
                 </div>
                 <div className="text-gray-400 text-sm font-mono mb-8">
-                  Я свяжусь с вами в течение 24 часов для обсуждения деталей проекта
+                  {t.successMessage}
                 </div>
                 <button
                   onClick={handleClose}
@@ -239,9 +244,9 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   animate={{ opacity: 1 }}
                   className="text-[#A246FF] text-xs mb-4 p-3 bg-[#120020]/50 rounded border border-[#A246FF]/30"
                 >
-                  <div>[ PREMIUM SERVICE ]</div>
+                  <div>{t.premiumService}</div>
                   <div className="text-[#2DE8B5] mt-1">
-                    Индивидуальная разработка Telegram-ботов под ваши задачи
+                    {t.premiumDescription}
                   </div>
                 </motion.div>
 
@@ -252,7 +257,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   transition={{ delay: 0.1 }}
                 >
                   <label className="block text-[#2DE8B5] mb-2 text-sm">
-                    {'> Ваше имя:'}
+                    {'> ' + t.nameLabel}
                     {showCursor && formData.name === '' && <span className="cursor-blink">_</span>}
                   </label>
                   <input
@@ -263,7 +268,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                     required
                     disabled={isSubmitting || isClosing}
                     className="terminal-input w-full px-4 py-2 bg-[#0A0A0F] border-2 border-[#A246FF]/30 rounded text-[#2DE8B5] focus:border-[#2DE8B5] focus:ring-2 focus:ring-[#2DE8B5]/30 disabled:opacity-50 font-mono"
-                    placeholder="Иван Петров"
+                    placeholder={t.namePlaceholder}
                   />
                 </motion.div>
 
@@ -274,7 +279,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   transition={{ delay: 0.2 }}
                 >
                   <label className="block text-[#2DE8B5] mb-2 text-sm">
-                    {'> Контакт (Telegram или Email):'}
+                    {'> ' + t.contactLabel}
                     {showCursor && formData.contact === '' && <span className="cursor-blink">_</span>}
                   </label>
                   <input
@@ -285,7 +290,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                     required
                     disabled={isSubmitting || isClosing}
                     className="terminal-input w-full px-4 py-2 bg-[#0A0A0F] border-2 border-[#A246FF]/30 rounded text-[#2DE8B5] focus:border-[#2DE8B5] focus:ring-2 focus:ring-[#2DE8B5]/30 disabled:opacity-50 font-mono"
-                    placeholder="@username или email@example.com"
+                    placeholder={t.contactPlaceholder}
                   />
                 </motion.div>
 
@@ -296,7 +301,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   transition={{ delay: 0.3 }}
                 >
                   <label className="block text-[#2DE8B5] mb-2 text-sm">
-                    {'> Описание проекта:'}
+                    {'> ' + t.descriptionLabel}
                     {showCursor && formData.description === '' && <span className="cursor-blink">_</span>}
                   </label>
                   <textarea
@@ -307,7 +312,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                     disabled={isSubmitting || isClosing}
                     rows="4"
                     className="terminal-input w-full px-4 py-2 bg-[#0A0A0F] border-2 border-[#A246FF]/30 rounded text-[#2DE8B5] focus:border-[#2DE8B5] focus:ring-2 focus:ring-[#2DE8B5]/30 disabled:opacity-50 font-mono resize-none"
-                    placeholder="Опишите задачи бота, функционал, интеграции..."
+                    placeholder={t.descriptionPlaceholder}
                   />
                 </motion.div>
 
@@ -318,7 +323,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   transition={{ delay: 0.4 }}
                 >
                   <label className="block text-[#2DE8B5] mb-2 text-sm">
-                    {'> Ориентировочный бюджет:'}
+                    {'> ' + t.budgetLabel}
                     {showCursor && formData.budget === '' && <span className="cursor-blink">_</span>}
                   </label>
                   <input
@@ -328,11 +333,8 @@ export default function CustomBotForm({ isOpen, onClose }) {
                     onChange={handleChange}
                     disabled={isSubmitting || isClosing}
                     className="terminal-input w-full px-4 py-2 bg-[#0A0A0F] border-2 border-[#A246FF]/30 rounded text-[#2DE8B5] focus:border-[#2DE8B5] focus:ring-2 focus:ring-[#2DE8B5]/30 disabled:opacity-50 font-mono"
-                    placeholder="от 50 000 ₽ или укажите ваш диапазон"
+                    placeholder={t.budgetPlaceholder}
                   />
-                  <div className="text-gray-500 text-xs mt-1 font-mono">
-                    Необязательное поле, но помогает в планировании
-                  </div>
                 </motion.div>
 
                 {/* Submit Button */}
@@ -347,7 +349,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   className="w-full py-3 text-black text-sm font-bold rounded-lg bg-gradient-to-r from-[#A246FF] to-[#2DE8B5] transition disabled:opacity-50 disabled:cursor-not-allowed font-mono"
                   style={{ boxShadow: '0 0 30px rgba(162, 70, 255, 0.6)' }}
                 >
-                  {isSubmitting ? '[ SENDING... ]' : '[ ENTER TO SUBMIT ]'}
+                  {isSubmitting ? t.submitting : t.submitButton}
                 </motion.button>
 
                 {/* Footer hint */}
@@ -357,7 +359,7 @@ export default function CustomBotForm({ isOpen, onClose }) {
                   transition={{ delay: 0.6 }}
                   className="text-xs text-gray-500 text-center mt-4 font-mono"
                 >
-                  Press ESC to cancel • Конфиденциальность гарантирована
+                  {t.footerHint}
                 </motion.div>
               </form>
             )}

@@ -23,61 +23,42 @@ body {
   background-color: #0A0A0F;
   color: #FFFFFF;
   overflow-x: hidden;
-  /* Hardware acceleration for smoother animations */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  /* Smooth font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3 {
   text-shadow: 0 0 20px rgba(162, 70, 255, 0.5);
-  /* Hardware acceleration for text with glow */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 /* Custom glow utilities */
 .text-glow-sm {
   text-shadow: 0 0 10px rgba(162, 70, 255, 0.6);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .text-glow-md {
   text-shadow: 0 0 20px rgba(162, 70, 255, 0.7);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .text-glow-lg {
   text-shadow: 0 0 30px rgba(162, 70, 255, 0.8);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .box-glow-sm {
   box-shadow: 0 0 10px rgba(162, 70, 255, 0.3);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .box-glow-md {
   box-shadow: 0 0 20px rgba(162, 70, 255, 0.4);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .box-glow-lg {
   box-shadow: 0 0 30px rgba(162, 70, 255, 0.5);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .shadow-glow-purple {
   box-shadow: 0 0 40px rgba(162, 70, 255, 0.4);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 /* Form input styles */
@@ -221,79 +202,14 @@ html {
 }
 
 /* ===================================
-   MOBILE ANTI-FLICKERING OPTIMIZATIONS
+   MOBILE OPTIMIZATIONS
    =================================== */
-
-/* Prevent flickering on animated elements */
-[data-framer-component],
-.motion-div,
-[class*="motion-"] {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* Optimize gradient animations */
-[style*="gradient"],
-[class*="gradient"] {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-/* Optimize elements with box-shadow animations */
-[style*="box-shadow"],
-button,
-a {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* Fix Safari iOS specific issues */
-@supports (-webkit-touch-callout: none) {
-  body {
-    /* Force GPU acceleration on iOS */
-    -webkit-perspective: 1000;
-    perspective: 1000;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-  }
-  
-  /* Prevent text flickering on scroll */
-  * {
-    -webkit-font-smoothing: antialiased;
-    -webkit-tap-highlight-color: transparent;
-  }
-}
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
-  /* Reduce animation complexity on mobile */
-  * {
-    animation-duration: 0.3s !important;
-    transition-duration: 0.3s !important;
-  }
-  
   /* Optimize scrolling performance */
   body {
     -webkit-overflow-scrolling: touch;
   }
-  
-  /* Reduce glow intensity on mobile to prevent flickering */
-  .text-glow-sm,
-  .text-glow-md,
-  .text-glow-lg,
-  .shadow-glow-purple {
-    filter: brightness(0.9);
-  }
-}
-
-/* Prevent flickering during page transitions */
-html.loading * {
-  animation-play-state: paused !important;
-  transition: none !important;
 }
 

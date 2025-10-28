@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import GlitchOverlay from './GlitchOverlay'
 import BootScreen from './BootScreen'
 
-export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }) {
+export default function RequestTerminal({ isOpen, onClose, initialBotType = '', scrollToButton = null, language = 'ru' }) {
   // Single phase state machine instead of multiple booleans
   const [phase, setPhase] = useState('idle') // "idle" | "glitch" | "boot" | "form"
   
@@ -16,6 +16,50 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
     comment: ''
   })
   
+  // Локализация
+  const texts = {
+    ru: {
+      successMessage: '✅ Заявка отправлена. Я свяжусь с вами в Telegram.',
+      nameLabel: 'Ваше имя:',
+      namePlaceholder: 'Иван Иванов',
+      contactLabel: 'Контакт (Telegram или Email):',
+      contactPlaceholder: '@username',
+      botTypeLabel: 'Выберите готовое решение:',
+      botTypes: {
+        'Бот для сбора отчётов': 'Бот для сбора отчётов',
+        'Бот приёма заказов': 'Бот приёма заказов',
+        'Бот для записи на услуги': 'Бот для записи на услуги',
+        'Бот технической поддержки': 'Бот технической поддержки'
+      },
+      commentLabel: 'Комментарий:',
+      commentPlaceholder: 'Дополнительные пожелания или вопросы...',
+      submitButton: '[ ENTER TO SUBMIT ]',
+      submitting: '[ ОТПРАВКА... ]',
+      footerHint: 'ESC - закрыть'
+    },
+    en: {
+      successMessage: '✅ Request sent. I will contact you via Telegram.',
+      nameLabel: 'Your name:',
+      namePlaceholder: 'John Doe',
+      contactLabel: 'Contact (Telegram or Email):',
+      contactPlaceholder: '@username',
+      botTypeLabel: 'Choose a ready-made solution:',
+      botTypes: {
+        'Бот для сбора отчётов': 'Work Report Bot',
+        'Бот приёма заказов': 'Order Management Bot',
+        'Бот для записи на услуги': 'Booking Bot',
+        'Бот технической поддержки': 'Support Bot'
+      },
+      commentLabel: 'Comment:',
+      commentPlaceholder: 'Additional requirements or questions...',
+      submitButton: '[ ENTER TO SUBMIT ]',
+      submitting: '[ SUBMITTING... ]',
+      footerHint: 'ESC - close'
+    }
+  }
+  
+  const t = texts[language]
+  
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [showCursor, setShowCursor] = useState(true)
@@ -24,13 +68,25 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
   // Computed: sessionActive is true when form is visible
   const sessionActive = phase === 'form'
 
+  // Локализуемый список ботов
   const botOptions = [
-    'Work Report Bot',
-    'Order & Delivery Bot',
-    'Booking Bot',
-    'Feedback & Support Bot',
-    'Другое'
+    'Бот для сбора отчётов',
+    'Бот приёма заказов',
+    'Бот для записи на услуги',
+    'Бот технической поддержки'
   ]
+  
+  // Block scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [isOpen])
   
   // Update botType when initialBotType changes
   useEffect(() => {
@@ -177,6 +233,8 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
             className="fixed inset-0 z-[40] bg-black/70 backdrop-blur-sm pointer-events-none"
+            onTouchMove={(e) => e.preventDefault()}
+            onWheel={(e) => e.preventDefault()}
           >
             {/* Pulsating purple glow */}
             <motion.div
@@ -230,8 +288,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={handleClose}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          style={{ pointerEvents: isClosing ? 'none' : 'auto' }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0A0A0F]/90 backdrop-blur-sm"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -240,10 +297,9 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
               opacity: isClosing ? 0 : 1 
             }}
             exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: 'spring', duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-[480px] bg-dark border border-[#A246FF40] rounded-xl overflow-hidden"
-            style={{ boxShadow: '0 0 40px rgba(162, 70, 255, 0.4)' }}
+            className="relative w-[90%] max-w-md rounded-2xl border border-[#A246FF50] bg-[#0A0A0F]/95 p-6 text-[#2DE8B5] shadow-[0_0_40px_rgba(162,70,255,.4)]"
           >
             {/* Terminal Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-dark-secondary border-b border-accent-purple/30">
@@ -252,17 +308,8 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-green-500" />
               </div>
-              <div className="text-accent-cyan text-xs font-mono flex items-center gap-2">
-                {sessionActive && (
-                  <motion.span
-                    animate={{ opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="text-[10px]"
-                  >
-                    🔒 SECURE
-                  </motion.span>
-                )}
-                <span>alex@nomad:~$ request_bot --interactive</span>
+              <div className="text-accent-cyan text-[10px] font-mono whitespace-nowrap">
+                alex@nomad:~$ request_bot --interactive
               </div>
               <button
                 onClick={handleClose}
@@ -282,13 +329,13 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                   className="text-center py-12"
                 >
                   <div className="text-accent-cyan text-lg font-mono mb-8">
-                    ✅ Заявка отправлена. Я свяжусь с вами в Telegram.
+                    {t.successMessage}
                   </div>
                   <button
                     onClick={handleClose}
                     className="px-8 py-2 border border-accent-cyan/50 rounded-lg text-accent-cyan hover:bg-accent-cyan/10 transition font-mono"
                   >
-                    Закрыть
+                    [ CLOSE ]
                   </button>
                 </motion.div>
               ) : (
@@ -300,7 +347,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                     transition={{ delay: 0.1 }}
                   >
                     <label className="block text-accent-cyan mb-2 text-sm">
-                      {'> Имя:'}
+                      {'> ' + t.nameLabel}
                       {showCursor && formData.name === '' && <span className="cursor-blink">_</span>}
                     </label>
                     <input
@@ -311,7 +358,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                       required
                       disabled={isSubmitting || isClosing}
                       className="terminal-input w-full px-4 py-2 bg-dark border border-accent-purple/30 rounded text-accent-cyan focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan/50 disabled:opacity-50 font-mono"
-                      placeholder="Ваше имя"
+                      placeholder={t.namePlaceholder}
                     />
                   </motion.div>
 
@@ -322,7 +369,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                     transition={{ delay: 0.2 }}
                   >
                     <label className="block text-accent-cyan mb-2 text-sm">
-                      {'> Контакт (Email или Telegram):'}
+                      {'> ' + t.contactLabel}
                       {showCursor && formData.contact === '' && <span className="cursor-blink">_</span>}
                     </label>
                     <input
@@ -333,7 +380,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                       required
                       disabled={isSubmitting || isClosing}
                       className="terminal-input w-full px-4 py-2 bg-dark border border-accent-purple/30 rounded text-accent-cyan focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan/50 disabled:opacity-50 font-mono"
-                      placeholder="@username или email@example.com"
+                      placeholder={t.contactPlaceholder}
                     />
                   </motion.div>
 
@@ -344,7 +391,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                     transition={{ delay: 0.3 }}
                   >
                     <label className="block text-accent-cyan mb-2 text-sm">
-                      {'> Какой бот нужен:'}
+                      {'> ' + t.botTypeLabel}
                       {showCursor && formData.botType === '' && <span className="cursor-blink">_</span>}
                     </label>
                     <select
@@ -361,9 +408,9 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                         backgroundSize: '1.5em 1.5em',
                       }}
                     >
-                      <option value="" disabled>Выберите бота</option>
+                      <option value="" disabled>{t.botTypeLabel}</option>
                       {botOptions.map((option, index) => (
-                        <option key={index} value={option}>{option}</option>
+                        <option key={index} value={option}>{t.botTypes[option] || option}</option>
                       ))}
                     </select>
                   </motion.div>
@@ -375,7 +422,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                     transition={{ delay: 0.4 }}
                   >
                     <label className="block text-accent-cyan mb-2 text-sm">
-                      {'> Комментарий:'}
+                      {'> ' + t.commentLabel}
                       {showCursor && formData.comment === '' && <span className="cursor-blink">_</span>}
                     </label>
                     <textarea
@@ -385,7 +432,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                       disabled={isSubmitting || isClosing}
                       rows="3"
                       className="terminal-input w-full px-4 py-2 bg-dark border border-accent-purple/30 rounded text-accent-cyan focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan/50 disabled:opacity-50 font-mono"
-                      placeholder="Расскажите подробнее..."
+                      placeholder={t.commentPlaceholder}
                     />
                   </motion.div>
 
@@ -401,7 +448,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                     className="w-full py-3 text-black text-sm font-medium rounded-lg bg-gradient-to-r from-[#A246FF] to-[#2DE8B5] transition disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ boxShadow: '0 0 30px rgba(162, 70, 255, 0.6)' }}
                   >
-                    {isSubmitting ? '[ ОТПРАВКА... ]' : '[ ENTER to submit ]'}
+                    {isSubmitting ? t.submitting : t.submitButton}
                   </motion.button>
 
                   {/* Footer hint */}
@@ -411,7 +458,7 @@ export default function RequestTerminal({ isOpen, onClose, initialBotType = '' }
                     transition={{ delay: 0.6 }}
                     className="text-xs text-gray-500 text-center mt-4"
                   >
-                    Нажмите ESC для отмены
+                    {t.footerHint}
                   </motion.div>
                 </form>
               )}
